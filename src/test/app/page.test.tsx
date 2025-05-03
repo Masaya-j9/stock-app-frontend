@@ -1,9 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { describe, it, expect } from "vitest";
-import Home from "../../pages/index";
+import Home from "../../app/page";
 import React from "react";
-
 
 describe("Home Component", () => {
   it('renders the heading with "Hello World"', () => {
