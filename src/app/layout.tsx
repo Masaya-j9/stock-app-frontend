@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import theme from "../theme/theme";
+import Header from "../components/Header";
 
 function ClientThemeProvider({ children }: { children: React.ReactNode }) {
   return (
@@ -21,7 +22,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-        <ClientThemeProvider>{children}</ClientThemeProvider>
+        <ClientThemeProvider>
+          <Header />
+          <main>{children}</main>
+        </ClientThemeProvider>
       </body>
     </html>
   );
