@@ -17,5 +17,6 @@ export type Items = {
 
 export type ItemResponse = {
   count: number;
+  totalPages: number;
   results: Items[];
 }
