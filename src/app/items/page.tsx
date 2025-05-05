@@ -8,7 +8,12 @@ type Props = {
 };
 
 const ItemsPage = async ({ searchParams }: Props) => {
-  const currentPage = Number(searchParams.page) || 1;
+  const currentPage = Number(searchParams.page ?? 0);
+
+  if (currentPage <= 0) {
+    return <div>ページ番号は1以上でなければなりません</div>;
+  }
+
 
   try {
     const { results, totalPages } = await fetchItems(currentPage);
