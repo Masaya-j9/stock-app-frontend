@@ -3,6 +3,10 @@ import { ItemResponse } from "@/types/items";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export const fetchItems = async (page: number): Promise<ItemResponse> => {
+  if (page <= 0) {
+    throw new Error("ページ番号は1以上でなければなりません");
+  }
+
   const res = await fetch(`${API_URL}/items?pages=${page}&sort_order=1`, {
     next: { revalidate: 0 },
   });
