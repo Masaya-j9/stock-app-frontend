@@ -38,6 +38,6 @@ describe("fetchItems", () => {
       text: async () => "Bad Request",
     });
 
-    await expect(fetchItems(0)).rejects.toThrow("Failed to fetch items: 400 Bad Request");
+    await expect(fetchItems(0)).rejects.toThrow("ページ番号は1以上でなければなりません");
   });
 });
