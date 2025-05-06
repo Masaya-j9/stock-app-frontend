@@ -1,4 +1,3 @@
-// app/items/ItemList.tsx
 "use client";
 
 import { Items as Item } from "@/types/items";
@@ -11,6 +10,7 @@ import {
   Chip,
   Box,
 } from "@mui/material";
+import Link from "next/link";
 
 type ItemListProps = {
   items: Item[];
@@ -29,7 +29,13 @@ const ItemList = ({ items }: ItemListProps) => {
         <>
           <List>
             {items.map((item) => (
-              <ListItem key={item.id} divider>
+              <ListItem
+                key={item.id}
+                divider
+                component={Link}
+                href={`/items/${item.id}`}
+                button // ← MUIのListItemをボタンっぽくする
+              >
                 <ListItemText
                   primary={
                     <Box
@@ -74,8 +80,7 @@ const ItemList = ({ items }: ItemListProps) => {
             ))}
           </List>
 
-          <Box mt={4} display="flex" justifyContent="center">
-          </Box>
+          <Box mt={4} display="flex" justifyContent="center"></Box>
         </>
       )}
     </Container>
