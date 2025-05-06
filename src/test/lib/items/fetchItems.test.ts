@@ -1,4 +1,4 @@
-import { fetchItems } from "@/lib/fetchItems";
+import { fetchItems } from "@/lib/items/fetchItems";
 import { vi, describe, it, expect } from "vitest";
 
 vi.stubGlobal("fetch", vi.fn());
@@ -27,7 +27,9 @@ describe("fetchItems", () => {
       text: async () => "Server Error",
     });
 
-    await expect(fetchItems(1)).rejects.toThrow("Failed to fetch items: 500 Internal Server Error");
+    await expect(fetchItems(1)).rejects.toThrow(
+      "Failed to fetch items: 500 Internal Server Error"
+    );
   });
 
   it("ページ番号が0以下の場合、400エラーが返ってくる", async () => {
@@ -38,6 +40,8 @@ describe("fetchItems", () => {
       text: async () => "Bad Request",
     });
 
-    await expect(fetchItems(0)).rejects.toThrow("ページ番号は1以上でなければなりません");
+    await expect(fetchItems(0)).rejects.toThrow(
+      "ページ番号は1以上でなければなりません"
+    );
   });
 });
