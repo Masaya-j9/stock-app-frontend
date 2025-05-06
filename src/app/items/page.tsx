@@ -1,19 +1,18 @@
 // app/items/page.tsx
 import ItemsPageClient from "@/app/items/ItemsPageClient";
-import { fetchItems } from "@/lib/fetchItems";
+import { fetchItems } from "@/lib/items/fetchItems";
 import React from "react";
 
-type Props = {
+type ItemSearchProps = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-const ItemsPage = async ({ searchParams }: Props) => {
-  const currentPage = Number(searchParams.page ?? 0);
+const ItemsPage = async ({ searchParams }: ItemSearchProps) => {
+  const currentPage = Number(searchParams.page ?? 1);
 
   if (currentPage <= 0) {
     return <div>ページ番号は1以上でなければなりません</div>;
   }
-
 
   try {
     const { results, totalPages } = await fetchItems(currentPage);
