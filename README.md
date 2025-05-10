@@ -1,6 +1,6 @@
 ## 使用しているバージョンについて
 
-- node.js v20.12.2
+- node.js v22.15.0
 - TypeScript v5.8.2
 - npm v10.5.0
 - Next.js v14.2.5
