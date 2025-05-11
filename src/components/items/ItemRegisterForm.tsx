@@ -34,7 +34,7 @@ const ItemRegisterForm: React.FC<ItemFormProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const categoriesData: CategoryResponse = await fetchCategories();
+        const categoriesData: CategoryResponse = await fetchCategories(1);
         const transformedCategories = categoriesData.categories.map((category) => ({
           id: category.id,
           name: category.name,
