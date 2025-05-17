@@ -1,5 +1,5 @@
 import { fetchItemById } from "@/lib/items/fetchItem"; // 先ほどのAPI関数
-import { notFound } from "next/navigation";
+import { ErrorMessage } from "@/components/ErrorMessage";
 
 type Params = {
   params: {
@@ -11,7 +11,7 @@ export default async function ItemDetailPage({ params }: Params) {
   const item = await fetchItemById(params.id);
 
   if (!item) {
-    notFound(); // 404ページへ遷移
+    return <ErrorMessage type="notFoundItem" />;
   }
 
   return (

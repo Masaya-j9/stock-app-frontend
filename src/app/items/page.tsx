@@ -1,6 +1,8 @@
 // app/items/page.tsx
 import ItemsPageClient from "@/app/items/ItemsPageClient";
 import { fetchItems } from "@/lib/items/fetchItems";
+import { ErrorMessage } from "@/components/ErrorMessage";
+import { parseApiError } from "@/utils/parses/errorParse";
 import React from "react";
 
 type ItemSearchProps = {
@@ -8,10 +10,12 @@ type ItemSearchProps = {
 };
 
 const ItemsPage = async ({ searchParams }: ItemSearchProps) => {
-  const currentPage = Number(searchParams.page ?? 1);
+  console.log("searchParams:", searchParams);
+  const currentPage: number = Number(searchParams.pages ?? 1);
+  console.log("currentPage:", currentPage);
 
   if (currentPage <= 0) {
-    return <div>ページ番号は1以上でなければなりません</div>;
+    return <ErrorMessage type="validation" message="ページ番号は1以上でなければなりません。" />;
   }
 
   try {
@@ -23,9 +27,14 @@ const ItemsPage = async ({ searchParams }: ItemSearchProps) => {
         initialTotalPages={totalPages}
       />
     );
-  } catch (error) {
-    console.error("Error in ItemsPage:", error);
-    return <div>データの取得に失敗しました</div>;
+  } catch (error: any) {
+    const apiError = parseApiError(error.message);
+    console.error("APIエラー:", apiError);
+
+    if (apiError?.statusCode === 404) {
+      return <ErrorMessage type="notFoundItem" />;
+    }
+    return <ErrorMessage type="network" />;
   }
 };
 

@@ -1,13 +1,30 @@
 import { ItemRegisterSchema, ItemRegisterRequest } from '@/types/items';
 
-export function validateRegisterItemData(data: { name: string; quantity: number; description: string; categoryIds: number[] }): ItemRegisterRequest {
+type ValidationResult =
+  | { success: true; data: ItemRegisterRequest }
+  | { success: false; error: { message: string; statusCode: number; errors?: Record<string, string[]> } };
+
+export function validateRegisterItemData(data: {
+  name: string;
+  quantity: number;
+  description: string;
+  categoryIds: number[];
+}): ValidationResult {
   const result = ItemRegisterSchema.safeParse(data);
 
   if (!result.success) {
     const errors = result.error.flatten().fieldErrors;
     console.error('バリデーションエラー:', errors);
-    throw new Error('入力されたデータにエラーがあります');
+
+    return {
+      success: false,
+      error: {
+        message: '入力されたデータにエラーがあります',
+        statusCode: 400,
+        errors,
+      },
+    };
   }
 
-  return result.data;
+  return { success: true, data: result.data };
 }

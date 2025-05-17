@@ -1,5 +1,5 @@
 import { vi, expect, it, describe, beforeEach, Mock } from 'vitest';
-import { registerItemAction } from '@/app/items/new/actions'; // ここは実際のパスに変更してください
+import { registerItemAction } from '@/app/items/new/actions';
 import { extractItemPayload } from '@/utils/payloads/payloadRequestItem';
 import { validateRegisterItemData } from '@/utils/validates/validateItem';
 
@@ -16,106 +16,118 @@ describe('registerItemAction', () => {
   mockFormData.append('categoryIds', '2');
 
   beforeEach(() => {
-    // 各テストの前にモック関数をリセット
     vi.clearAllMocks();
   });
 
   it('アイテムの登録に成功する', async () => {
-    // モック設定
     const mockExtractItemPayload = extractItemPayload as Mock;
     const mockValidateRegisterItemData = validateRegisterItemData as Mock;
 
-    // モックの挙動
-    mockExtractItemPayload.mockReturnValue({
+    const payload = {
       name: 'Item A',
       quantity: 10,
       description: 'Description of Item A',
       categoryIds: [1, 2],
-    });
+    };
+
+    mockExtractItemPayload.mockReturnValue(payload);
 
     mockValidateRegisterItemData.mockReturnValue({
-      name: 'Item A',
-      quantity: 10,
-      description: 'Description of Item A',
-      categoryIds: [1, 2],
+      success: true,
+      data: payload,
     });
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true }),
+      json: async () => ({ id: 123 }),
     });
 
     global.fetch = mockFetch;
 
-    // 実行
     const response = await registerItemAction(mockFormData);
 
-    // アサーション
     expect(mockExtractItemPayload).toHaveBeenCalledWith(mockFormData);
-    expect(mockValidateRegisterItemData).toHaveBeenCalledWith({
-      name: 'Item A',
-      quantity: 10,
-      description: 'Description of Item A',
-      categoryIds: [1, 2],
-    });
+    expect(mockValidateRegisterItemData).toHaveBeenCalledWith(payload);
     expect(mockFetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/items`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Item A',
-        quantity: 10,
-        description: 'Description of Item A',
-        categoryIds: [1, 2],
-      }),
+      body: JSON.stringify(payload),
     });
-    expect(response).toEqual({ success: true });
+    expect(response).toEqual({ success: true, data: { id: 123 } });
   });
 
-  it('APIリクエストが失敗したときにエラーを投げる', async () => {
+  it('バリデーション失敗時にエラーを返す', async () => {
     const mockExtractItemPayload = extractItemPayload as Mock;
     const mockValidateRegisterItemData = validateRegisterItemData as Mock;
 
-    // モックの挙動
-    mockExtractItemPayload.mockReturnValue({
-      name: 'Item A',
+    const payload = {
+      name: '',
       quantity: 10,
-      description: 'Description of Item A',
-      categoryIds: [1, 2],
-    });
+      description: 'Invalid',
+      categoryIds: [],
+    };
+
+    mockExtractItemPayload.mockReturnValue(payload);
 
     mockValidateRegisterItemData.mockReturnValue({
+      success: false,
+      error: {
+        message: 'バリデーションエラー',
+        errors: {
+          name: '名前は必須です',
+          categoryIds: 'カテゴリは1つ以上必要です',
+        },
+      },
+    });
+
+    const response = await registerItemAction(mockFormData);
+
+    expect(response).toEqual({
+      success: false,
+      error: {
+        message: 'バリデーションエラー',
+        errors: {
+          name: '名前は必須です',
+          categoryIds: 'カテゴリは1つ以上必要です',
+        },
+      },
+    });
+  });
+
+  it('APIリクエストが失敗したときにエラーメッセージを返す', async () => {
+    const mockExtractItemPayload = extractItemPayload as Mock;
+    const mockValidateRegisterItemData = validateRegisterItemData as Mock;
+
+    const payload = {
       name: 'Item A',
       quantity: 10,
       description: 'Description of Item A',
       categoryIds: [1, 2],
+    };
+
+    mockExtractItemPayload.mockReturnValue(payload);
+
+    mockValidateRegisterItemData.mockReturnValue({
+      success: true,
+      data: payload,
     });
 
     const mockFetch = vi.fn().mockResolvedValue({
       ok: false,
-      text: async () => 'Error message',
+      status: 409,
+      text: async () => JSON.stringify({ message: '重複アイテムです' }),
     });
 
     global.fetch = mockFetch;
 
-    // エラーハンドリング
-    await expect(registerItemAction(mockFormData)).rejects.toThrow('アイテムの登録に失敗しました');
+    const response = await registerItemAction(mockFormData);
 
-    expect(mockExtractItemPayload).toHaveBeenCalledWith(mockFormData);
-    expect(mockValidateRegisterItemData).toHaveBeenCalledWith({
-      name: 'Item A',
-      quantity: 10,
-      description: 'Description of Item A',
-      categoryIds: [1, 2],
-    });
-    expect(mockFetch).toHaveBeenCalledWith(`${process.env.NEXT_PUBLIC_API_URL}/items`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Item A',
-        quantity: 10,
-        description: 'Description of Item A',
-        categoryIds: [1, 2],
-      }),
+    expect(response).toEqual({
+      success: false,
+      error: {
+        message: '重複アイテムです',
+        statusCode: 409,
+      },
     });
   });
 });

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { validateRegisterItemData } from '@/utils/validates/validateItem';
 
 const ITEM_NAME_MAX_LENGTH = 255;
@@ -15,7 +15,10 @@ describe('validateRegisterItemData', () => {
     };
 
     const result = validateRegisterItemData(validData);
-    expect(result).toEqual(validData);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).toEqual(validData);
+    }
   });
 
   it('nameが空文字だとエラー', () => {
@@ -26,12 +29,15 @@ describe('validateRegisterItemData', () => {
       categoryIds: [1],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow('入力されたデータにエラーがあります');
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.name).toBeDefined();
+    }
   });
 
   it(`nameが${ITEM_NAME_MAX_LENGTH + 1}文字以上だとエラー`, () => {
     const longName = 'a'.repeat(ITEM_NAME_MAX_LENGTH + 1);
-
     const invalidData = {
       name: longName,
       quantity: 10,
@@ -39,7 +45,11 @@ describe('validateRegisterItemData', () => {
       categoryIds: [1],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow('入力されたデータにエラーがあります');
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.name).toBeDefined();
+    }
   });
 
   it('quantityが0以下だとエラー', () => {
@@ -50,7 +60,11 @@ describe('validateRegisterItemData', () => {
       categoryIds: [1],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow();
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.quantity).toBeDefined();
+    }
   });
 
   it(`quantityが${ITEM_QUANTITY_MAX_VALUE + 1}以上だとエラー`, () => {
@@ -61,7 +75,11 @@ describe('validateRegisterItemData', () => {
       categoryIds: [1],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow();
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.quantity).toBeDefined();
+    }
   });
 
   it('descriptionが空文字だとエラー', () => {
@@ -72,12 +90,15 @@ describe('validateRegisterItemData', () => {
       categoryIds: [1],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow();
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.description).toBeDefined();
+    }
   });
 
   it(`descriptionが${DESCRIPTION_MAX_LENGTH + 1}文字以上だとエラー`, () => {
     const longDescription = 'あ'.repeat(DESCRIPTION_MAX_LENGTH + 1);
-
     const invalidData = {
       name: '有効な名前',
       quantity: 5,
@@ -85,7 +106,11 @@ describe('validateRegisterItemData', () => {
       categoryIds: [1],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow();
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.description).toBeDefined();
+    }
   });
 
   it('categoryIdsが空だとエラー', () => {
@@ -96,6 +121,10 @@ describe('validateRegisterItemData', () => {
       categoryIds: [],
     };
 
-    expect(() => validateRegisterItemData(invalidData)).toThrow();
+    const result = validateRegisterItemData(invalidData);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.errors?.categoryIds).toBeDefined();
+    }
   });
 });
