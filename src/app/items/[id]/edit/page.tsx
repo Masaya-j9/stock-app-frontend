@@ -8,12 +8,17 @@ import { ErrorMessage } from "@/components/ErrorMessage";
 import { ErrorType } from "@/types/errors";
 import { Items as Item } from "@/types/items";
 
-const EditItemPage = ({ saveItem }: { saveItem: Item | null }) => {
-  const router = useRouter();
-  const params = useParams();
-  const id = params?.id as string;
+interface PageProps {
+  params: { id: string };
+  searchParams: { [key: string]: string | string[] | undefined };
+}
 
-  const [item, setItem] = useState<Item | null>(saveItem);
+const EditItemPage = ({ params }: PageProps) => {
+  const router = useRouter();
+  const id = params.id;
+  const [saveItem, setSaveItem] = useState<Item | null>(null);
+
+  const [item, setItem] = useState<Item | null>(null);
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<number[]>([]);
   const [errorType, setErrorType] = useState<ErrorType | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | undefined>(
