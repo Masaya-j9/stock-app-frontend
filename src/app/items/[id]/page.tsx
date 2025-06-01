@@ -1,7 +1,9 @@
-'use client';
+"use client";
 
 import { fetchItemById } from "@/lib/items/fetchItem";
+import { deleteItem } from "@/lib/items/deleteItem";
 import { ErrorMessage } from "@/components/ErrorMessage";
+import { DeleteConfirmModal } from "@/components/Modals/DeleteConfirmModal";
 import {
   Box,
   Container,
@@ -23,6 +25,8 @@ type Params = {
 
 export default function ItemDetailPageWrapper({ params }: Params) {
   const [item, setItem] = useState<any | null>(null);
+  const [open, setOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null); // 追加
 
   useEffect(() => {
     const fetch = async () => {
@@ -39,6 +43,17 @@ export default function ItemDetailPageWrapper({ params }: Params) {
     localStorage.setItem("editingItem", JSON.stringify(item));
     router.push(`/items/${params.id}/edit`);
   }, [item, params.id, router]);
+
+  const handleDelete = async () => {
+    try {
+      await deleteItem(params.id);
+      setItem(null);
+      router.push("/items");
+    } catch (error: any) {
+      setDeleteError(error?.message || "削除に失敗しました"); // エラーセット
+      console.error("削除に失敗しました:", error);
+    }
+  };
 
   if (!item) {
     return <ErrorMessage type="notFoundItem" />;
@@ -76,7 +91,19 @@ export default function ItemDetailPageWrapper({ params }: Params) {
         <Button variant="contained" color="primary" onClick={handleEditClick}>
           編集する
         </Button>
+        <Button variant="outlined" color="error" onClick={() => setOpen(true)}>
+          削除する
+        </Button>
       </Box>
+
+      <DeleteConfirmModal
+        open={open}
+        onClose={() => setOpen(false)}
+        onConfirm={handleDelete}
+        title="削除の確認"
+        description="このアイテムを削除しますか？"
+        errorMessage={deleteError}
+      />
     </Container>
   );
 }
