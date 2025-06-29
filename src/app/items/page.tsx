@@ -11,7 +11,7 @@ type ItemSearchProps = {
 
 const ItemsPage = async ({ searchParams }: ItemSearchProps) => {
   console.log("searchParams:", searchParams);
-  const currentPage: number = Number(searchParams.pages ?? 1);
+  const currentPage: number = Number(searchParams.page ?? 1);
   console.log("currentPage:", currentPage);
 
   if (currentPage <= 0) {
