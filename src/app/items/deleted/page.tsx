@@ -1,5 +1,5 @@
 import DeletedItemsPageClient from "./DeletedItemsPageClient";
-import { fetchDeletedItemList } from "@/lib/items/deletedItemList";
+import { fetchDeletedItemList } from "@/lib/items/fetchDeletedItemList";
 import { ErrorMessage } from "@/components/ErrorMessage";
 import { parseApiError } from "@/utils/parses/errorParse";
 import React from "react";
